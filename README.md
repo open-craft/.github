@@ -1,2 +1,2 @@
-# upstream-sync-gh-actions
-Github Actions for automatically creating PRs to sync OpenCraft's forked repos with their upstreams.
+# .github
+Github Actions for various automations across the OpenCraft Organization repositories.
