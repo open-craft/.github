@@ -16,7 +16,7 @@ jobs:
           # The fork repo provided needs to be in the {owner}/{repo} format
           - fork_repo: open-craft/edx-platform
             fork_branch: opencraft-release/palm.1
-            upstream_repo: https://github.com/openedx/edx-platform
+            upstream_repo: openedx/edx-platform
             upstream_branch: open-release/palm.master
 
     runs-on: ubuntu-latest
@@ -35,23 +35,21 @@ jobs:
       - name: Configure git to use GitHub CLI for credentials
         run: gh auth setup-git -h github.com
 
-      - name: Checkout Forked Repo
+      - name: Checkout Upstream Repo
         uses: actions/checkout@v3
         with:
-          repository: ${{ matrix.fork_repo }}
           token: ${{ env.GITHUB_TOKEN }}
+          repository: ${{ matrix.upstream_repo }}
+          ref: ${{ matrix.upstream_branch }}
 
-      - name: Add Remote Upstream
-        run: git remote add upstream ${{ matrix.upstream_repo }}
+      - name: Create a new branch off Upstream
+        run: git checkout -b ${{ steps.sync-branch.outputs.SYNC_BRANCH }}
 
-      - name: Fetch Latest from Upstream
-        run: git fetch upstream
-
-      - name: Create a new branch off Upstream master
-        run: git checkout -b ${{ steps.sync-branch.outputs.SYNC_BRANCH }} upstream/${{ matrix.upstream_branch }}
+      - name: Set Remote Origin to Fork
+        run: git remote set-url --push origin https://${{ env.GITHUB_TOKEN }}@github.com/${{ matrix.fork_repo }}
 
       - name: Push new branch to Fork
-        run: git push origin
+        run: git push --set-upstream origin ${{ steps.sync-branch.outputs.SYNC_BRANCH }}
 
       - name: Create PR on Fork with latest changes (if any) from Upstream
         run: >
