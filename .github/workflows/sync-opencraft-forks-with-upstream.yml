@@ -18,6 +18,10 @@ jobs:
             fork_branch: opencraft-release/palm.1
             upstream_repo: openedx/edx-platform
             upstream_branch: open-release/palm.master
+          - fork_repo: open-craft/edx-platform
+            fork_branch: opencraft-release/quince.1
+            upstream_repo: openedx/edx-platform
+            upstream_branch: open-release/quince.master
 
     runs-on: ubuntu-latest
     env:
