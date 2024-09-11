@@ -34,6 +34,22 @@ jobs:
             fork_branch: opencraft-release/quince.1
             upstream_repo: openedx/frontend-app-authn
             upstream_branch: open-release/quince.master
+          - fork_repo: open-craft/edx-platform
+            fork_branch: opencraft-release/redwood.1
+            upstream_repo: openedx/edx-platform
+            upstream_branch: open-release/redwood.master
+          - fork_repo: open-craft/frontend-app-learning
+            fork_branch: opencraft-release/redwood.1
+            upstream_repo: openedx/frontend-app-learning
+            upstream_branch: open-release/redwood.master
+          - fork_repo: open-craft/frontend-app-gradebook
+            fork_branch: opencraft-release/redwood.1
+            upstream_repo: openedx/frontend-app-gradebook
+            upstream_branch: open-release/redwood.master
+          - fork_repo: open-craft/frontend-app-authn
+            fork_branch: opencraft-release/redwood.1
+            upstream_repo: openedx/frontend-app-authn
+            upstream_branch: open-release/redwood.master
 
     runs-on: ubuntu-latest
     env:
