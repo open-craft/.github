@@ -50,6 +50,10 @@ jobs:
             fork_branch: opencraft-release/redwood.1
             upstream_repo: openedx/frontend-app-authn
             upstream_branch: open-release/redwood.master
+          - fork_repo: open-craft/edx-platform
+            fork_branch: opencraft-release/sumac.1
+            upstream_repo: openedx/edx-platform
+            upstream_branch: open-release/sumac.master
 
     runs-on: ubuntu-latest
     env:
