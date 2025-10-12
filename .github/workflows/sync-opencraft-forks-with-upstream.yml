@@ -54,6 +54,10 @@ jobs:
             fork_branch: opencraft-release/sumac.1
             upstream_repo: openedx/edx-platform
             upstream_branch: open-release/sumac.master
+          - fork_repo: open-craft/edx-platform
+            fork_branch: opencraft/teak
+            upstream_repo: openedx/edx-platform
+            upstream_branch: release/teak
 
     runs-on: ubuntu-latest
     env:
