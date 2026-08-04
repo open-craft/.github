@@ -1,0 +1,90 @@
+name: Sync OpenCraft forks with upstream
+
+# Controls when the workflow will run
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Runs every Monday 00:00 UTC
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync:
+    strategy:
+      matrix:
+        include:
+          # The repos provided need to be in the {owner}/{repo} format
+          - fork_repo: open-craft/openedx-platform
+            fork_branch: opencraft/ulmo
+            upstream_repo: openedx/openedx-platform
+            upstream_branch: release/ulmo
+
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.REQUIREMENTS_BOT_GITHUB_TOKEN }}
+
+    steps:
+      - name: Get and store current datetime stamp
+        id: current-datetime-stamp
+        run: echo "DATE_TIME_STAMP=$(date +'%Y-%m-%d--%s')" >> "$GITHUB_OUTPUT"
+
+      - name: Construct and store sync branch name
+        id: sync-branch
+        run: echo "SYNC_BRANCH=sync-${{ matrix.upstream_branch }}-${{ steps.current-datetime-stamp.outputs.DATE_TIME_STAMP }}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure git to use GitHub CLI for credentials
+        run: gh auth setup-git -h github.com
+
+      - name: Checkout upstream repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+          repository: ${{ matrix.upstream_repo }}
+          ref: ${{ matrix.upstream_branch }}
+
+      - name: Create a new branch from upstream
+        run: git checkout -b ${{ steps.sync-branch.outputs.SYNC_BRANCH }}
+
+      - name: Set remote origin to fork
+        run: git remote set-url --push origin https://${{ env.GITHUB_TOKEN }}@github.com/${{ matrix.fork_repo }}
+
+      - name: Push new branch to fork
+        run: git push --set-upstream origin ${{ steps.sync-branch.outputs.SYNC_BRANCH }}
+
+      - name: Create PR on fork with latest changes (if any) from upstream
+        run: >
+          gh pr create
+          --repo ${{ matrix.fork_repo }}
+          --base ${{ matrix.fork_branch }}
+          --head $(git branch --show-current)
+          --title "Sync ${{ matrix.fork_branch }} with upstream ${{ steps.current-datetime-stamp.outputs.DATE_TIME_STAMP }}"
+          --body '
+          ## Description
+
+          Syncing `${{ matrix.fork_branch }}` with upstream [${{ matrix.upstream_repo }}#${{ matrix.upstream_branch }}](https://github.com/${{ matrix.upstream_repo }}/tree/${{ matrix.upstream_branch }}).
+
+          This PR was auto-created by the [sync-opencraft-forks-with-upstream workflow](https://github.com/open-craft/.github/blob/main/.github/workflows/sync-opencraft-forks-with-upstream.yml).
+          
+          It may be reviewed in the scope of [SE-6622](https://tasks.opencraft.com/browse/SE-6622) (private ticket).
+          
+          Regular sync-ups like this one help reduce drift and ensure recent patches (security, fixes, etc.) are pulled in.
+
+          ## ❗ Important
+
+          When merging, please always use the **"Create a merge commit"** option as it avoids issues when checking diffs with upstream later on.
+
+          ## ⚠️ Note on Conflicts
+
+          In cases of conflicts you can go ahead and resolve them here on GitHub if it is simple enough.
+          However if it is a more complicated conflict please follow the steps below:
+
+            1. Check out `${{ steps.sync-branch.outputs.SYNC_BRANCH }}` locally:
+            2. Pull latest changes from `${{ matrix.fork_branch }}` into that branch, make sure your `[REMOTE]` is pointing to `${{ matrix.fork_branch }}`:
+            ```sh
+            git pull [REMOTE] ${{ matrix.fork_branch }}
+            ```
+            3. Resolve the conflicts locally, then commit the result. This will create a new merge commit.
+            4. Push the new merge commit to `${{ steps.sync-branch.outputs.SYNC_BRANCH }}` to update this PR.
+            5. Review the PR again and merge when ready!
+            **Note: As mentioned above, please use the "Create a merge commit" option when merging.**' ||
+            (echo "No changes detected. Deleting sync branch..." && git push origin --delete ${{ steps.sync-branch.outputs.SYNC_BRANCH }})
