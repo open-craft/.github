@@ -36,7 +36,7 @@ jobs:
         run: gh auth setup-git -h github.com
 
       - name: Checkout upstream repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           token: ${{ env.GITHUB_TOKEN }}
           repository: ${{ matrix.upstream_repo }}
@@ -64,9 +64,9 @@ jobs:
           Syncing `${{ matrix.fork_branch }}` with upstream [${{ matrix.upstream_repo }}#${{ matrix.upstream_branch }}](https://github.com/${{ matrix.upstream_repo }}/tree/${{ matrix.upstream_branch }}).
 
           This PR was auto-created by the [sync-opencraft-forks-with-upstream workflow](https://github.com/open-craft/.github/blob/main/.github/workflows/sync-opencraft-forks-with-upstream.yml).
-          
+
           It may be reviewed in the scope of [SE-6622](https://tasks.opencraft.com/browse/SE-6622) (private ticket).
-          
+
           Regular sync-ups like this one help reduce drift and ensure recent patches (security, fixes, etc.) are pulled in.
 
           ## ❗ Important
