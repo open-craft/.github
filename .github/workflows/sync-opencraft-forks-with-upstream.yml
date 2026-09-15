@@ -18,6 +18,10 @@ jobs:
             fork_branch: opencraft/ulmo
             upstream_repo: openedx/openedx-platform
             upstream_branch: release/ulmo
+          - fork_repo: open-craft/openedx-platform
+            fork_branch: opencraft/verawood
+            upstream_repo: openedx/openedx-platform
+            upstream_branch: release/verawood
 
     runs-on: ubuntu-latest
     env:
